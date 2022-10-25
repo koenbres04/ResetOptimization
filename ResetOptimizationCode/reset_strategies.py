@@ -29,7 +29,7 @@ class BasicStrategy:
     # compute the record density of this strategy
     def compute_record_density(self):
         # initialise the distribution of splits
-        distribution = self.model.distributions[0].copy()
+        distribution = self.model.segment_distributions[0].copy()
         t = self.model.real_times[0]
         expected_time = distribution.get_run_kill_prob()*t
         for i, reset_index in enumerate(self.reset_indices):
@@ -45,10 +45,10 @@ class BasicStrategy:
             expected_time += reset_prob * t
             # update the expected time based on the probability of the run being killed during the next segment
             expected_time += (np.sum(distribution.probabilities) *
-                              self.model.distributions[i + 1].get_run_kill_prob() *
+                              self.model.segment_distributions[i + 1].get_run_kill_prob() *
                               (t+self.model.real_times[i + 1]))
             # update the distribution for the next segment
-            distribution = distribution.convolve(self.model.distributions[i + 1])
+            distribution = distribution.convolve(self.model.segment_distributions[i + 1])
             t += self.model.real_times[i + 1]
         # calculate the probabilities of failing at the final segment or reaching the goal split
         fail_prob = 0
@@ -85,7 +85,7 @@ def update_strategy(model: BasicSpeedrunModel, possible_record_density, prob_of_
     for i in range(model.segment_num - 1, -1, -1):
         # for each possible split before this segment we calculate the expected time that the rest of the run will take
         # and the probability that the rest of this run will result in a record
-        segment_distribution = model.distributions[i]
+        segment_distribution = model.segment_distributions[i]
         new_expected_time = np.convolve(segment_distribution.probabilities, expected_time, "valid")
         new_expected_time += model.real_times[i]
         new_prob_of_record = np.convolve(segment_distribution.probabilities, prob_of_record, "valid")

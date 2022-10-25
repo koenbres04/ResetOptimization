@@ -69,24 +69,24 @@ class BasicSpeedrunModel:
     A model of a speedrun where the only choice per segment is whether or not to reset.
      - segment_num: number of segments
      - split_step: the precision to which in game time is discretized
-     - distributions: a list of SplitDistributions, one for each segment
+     - segment_distributions: a list of SplitDistributions, one for each segment
      - goal_split: the goal in game time to reach (<=)
      - real_times: a list giving the real time length of each segment
     """
 
     def __init__(self, segment_num: int, split_step: float, real_times,
-                 distributions: List[SplitDistribution], goal_split: float):
+                 segment_distributions: List[SplitDistribution], goal_split: float):
         self.segment_num = segment_num
         self.split_step = split_step
-        self.distributions = distributions
+        self.segment_distributions = segment_distributions
         self.goal_split = goal_split
         self.real_times = real_times
 
         self.split_range_lengths = [1]
-        for dist in distributions:
+        for dist in segment_distributions:
             self.split_range_lengths.append(dist.length + self.split_range_lengths[-1] - 1)
         self.start_splits = [0]
-        for dist in distributions:
+        for dist in segment_distributions:
             self.start_splits.append(self.start_splits[-1] + dist.start_split)
 
     # creates a speedrun model from a list of tuples consisting tuples describing a segment of the run.
@@ -107,8 +107,8 @@ class BasicSpeedrunModel:
     # computes the probability of a run reaching the goal split without resets
     def prob_of_record(self):
         # obtain a distribution for the total run time using the convolve method
-        distribution = self.distributions[0].copy()
-        for dist in self.distributions[1:]:
+        distribution = self.segment_distributions[0].copy()
+        for dist in self.segment_distributions[1:]:
             distribution = distribution.convolve(dist)
         # calculate what the probability of a record
         return np.sum(distribution.probabilities[0:self.goal_index+1])
