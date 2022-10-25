@@ -129,7 +129,7 @@ def update_strategy(model: BasicSpeedrunModel, possible_record_density, prob_of_
     return reset_indices[1:], prob_of_record[0] / expected_time[0]
 
 
-def get_strategy(model: BasicSpeedrunModel, iterations: int, *,
+def get_strategy(model: BasicSpeedrunModel, *, max_iterations: int = 100,
                  print_progress=False, return_record_probabilities=False):
     """
     Computes the optimal reset strategy of a speedrun model.
@@ -140,7 +140,7 @@ def get_strategy(model: BasicSpeedrunModel, iterations: int, *,
     last_reset_indices = None
     prob_of_record_out = None
 
-    for i in range(iterations):
+    for i in range(max_iterations):
         # calculate a strategy of higher record density than 'record_density' and update record_density accordingly
         if return_record_probabilities:
             prob_of_record_out = []

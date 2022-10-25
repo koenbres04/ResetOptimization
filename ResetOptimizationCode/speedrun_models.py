@@ -89,6 +89,16 @@ class BasicSpeedrunModel:
         for dist in distributions:
             self.start_splits.append(self.start_splits[-1] + dist.start_split)
 
+    # creates a speedrun model from a list of tuples consisting tuples describing a segment of the run.
+    # Each tuple consists of the real time length of the segment together with a SplitDistribution object describing
+    # it's length
+    @classmethod
+    def from_segments(cls, segments: List, goal_split, reset_time=0):
+        real_times = [t for t, d in segments]
+        real_times[0] += reset_time
+        distributions = [d for t, d in segments]
+        return BasicSpeedrunModel(len(segments), segments[0][1].split_step, real_times, distributions, goal_split)
+
     # gives the discretised version of self.goal_split
     @property
     def goal_index(self):
