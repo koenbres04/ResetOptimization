@@ -1,4 +1,4 @@
-from speedrun_models import BasicSpeedrunModel, SplitDistribution
+from speedrun_models import BasicSpeedrunModel
 from math import ceil
 import numpy as np
 import dataclasses
@@ -27,7 +27,7 @@ class BasicStrategy:
         return [s + self.model.split_step * i for i, s in zip(self.reset_indices, self.model.start_splits[1:-1])]
 
     # compute the record density of this strategy
-    def compute_wrd(self):
+    def compute_record_density(self):
         # initialise the distribution of splits
         distribution = self.model.distributions[0].copy()
         t = self.model.real_times[0]
