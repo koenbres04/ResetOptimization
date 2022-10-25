@@ -1,3 +1,6 @@
+"""
+A file containing some example code demonstrating how to use speedrun_models.py and reset_strategies.py
+"""
 from speedrun_models import BasicSpeedrunModel, SplitDistribution
 from reset_strategies import get_strategy
 

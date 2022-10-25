@@ -1,3 +1,6 @@
+"""
+A python file containing classes and methods for generating reset strategies.
+"""
 from speedrun_models import BasicSpeedrunModel
 from math import ceil
 import numpy as np

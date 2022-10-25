@@ -1,5 +1,5 @@
 """
-temp
+A python file containing classes and methods speedrun models.
 """
 import dataclasses
 import numpy as np
