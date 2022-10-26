@@ -1,7 +1,12 @@
 # Speedrun Reset Optimization
 
 This project implements an algorithm for optimising reset strategies in speedrunning.
-This is not only usefull for determining when to reset during a run, but also it allows you to quantitatively judge when to go for a risky strategy or for a more safe one.
+This is not only useful for determining when to reset during a run, but also it allows you to quantitatively judge when to go for a risky strategy or for a more safe one.
+
+As far as I know this algorithm was first discovered by github user jasontrigg0 as seen at the very bottom of [this](https://www.reddit.com/r/speedrun/comments/lxq9g7/looking_for_a_mathematicaly_perfect_way_to_reset/) thread and in [this](https://gist.github.com/jasontrigg0/148a58ea7533c1831cef605095dbd213) github gist.
+I independently rediscovered the algorithm and wrote it out before discovering this.
+(I found the thread earlier, but I never scrolled all the way to the bottom.)
+This code is hopefully easier to use, easier to understand and faster than jason's.
 
 ## The basic idea
 
@@ -30,6 +35,11 @@ This is (somewhat crudely) visualized in the image below.
 All of this data together forms a *speedrun model*.
 The class `BasicSpeedrunModel` stores all of this data.
 
+Note that not all speedruns can be moddeld by this.
+For example in a minecraft speedrun there are many more factors than your current split that weigh into the decision wether or not to reset.
+Celeste is an example of a game that is modelled very well by this model.
+It is divided into segments that are completely independent of each other.
+
 ### Record density
 A *reset strategy* is a sequence splits, one for the end of each segment, where you reset at the end of a segment if your current split is higher than the one in the sequence.
 Our goal is to find an optimal reset strategy, but what do we mean by optimal?
@@ -37,14 +47,37 @@ The goal of speedrunning is to reach a goal split as fast as possible, so we nee
 Actually it will be easier to think of 1 divided by this quantity: the *record density*.
 Loosly speaking, the record density is the amount of records per unit real time of an infinite chain of runs.
 
+Calculating the record density of a reset strategy is relatively easy:
+Calculate the probability of a single run reaching the end and reaching the goal split and divide it by the expected amount of real time that a single run lasts.
+Why exactly this works is a probability theory question that is answered in the non-existant LaTeX document that I intend on writing.
 
 
 ### The algorithm
 
-...
+Suppose that we have managed to find a reset strategy with record density `rd_0`.
+We will describe an algorithm for finding a better reset strategy if it exists.
 
+Imagine that you are currenly performing an infinite number of runs using this strategy.
+Suppose that you are at the border between the last and the second to last segment with a split of `s`.
+Using the split distribution of the last segment we can calulate the the probability `p_record` that you obtain a record in the next segment.
+Let `t` be the real time duration of the last segment.
+If `p_record/t >= rd_0` the remaining segment on it's own will have a record density higher (or equal to) that of the infinite number of runs that are to come, so continuing will improve the overall record density.
+If `p_record/t <= rd_0` then the remaining segment on it's own will have a lower record density than the runs to come, so continuing would decrease the overall record density.
+Therefore it is better to reset.
+We can repeat this calculation for each possible split and find the smallest split where this process tells us to reset and store this as the last item of a new reset strategy.
+(Actually you can find this split using binary search.)
 
-I intend on explaining this algorithm and why it works in more mathematical rigour in a LaTeX document.
+Now we can repeat this to compute reset splits from the back to the front for a new strategy:
+For each possible split at the `n`'th segment calculate the record density of the remaining segments when using the reset splits that were just found.
+Then take the reset split for the `n`'th segment to be the smallest split that gives a record density stricly smaller than `rd_0`.
+How exactly we calculate the probabilities is not important, but it is interesting to note that all of the heavy duty probability calculations can be phrased in terms of convolutions and the numpy library has implemented algorithms to compute these crazy fast.
+
+The resulting reset strategy will have a record density of `rd_1` bigger than `rd_0`.
+The idea of the full algorithm is to repeat this process over and over again giving a sequence of decreasing record densities that hopefully stabilizes.
+In practice it takes around 3 or 4 iterations to converge to an optimal record density.
+
+I intend on explaining this algorithm and why it converges to an optimal solution in more mathematical rigour in a LaTeX document.
+In the meanwhile look at the bottom of [this](https://www.reddit.com/r/speedrun/comments/lxq9g7/looking_for_a_mathematicaly_perfect_way_to_reset/) reddit thread for an explanation.
 
 ## Example applications
 
