@@ -80,7 +80,8 @@ def update_strategy(model: BasicSpeedrunModel, possible_record_density, prob_of_
     expected_time = np.zeros(model.split_range_lengths[-1], dtype=float)
     # initiate the probability of getting a record in this run for each split
     prob_of_record = np.zeros(model.split_range_lengths[-1], dtype=float)
-    prob_of_record[0:model.goal_index+1] = 1
+    if model.goal_index >= 0:
+        prob_of_record[0:model.goal_index+1] = 1
     # optionally save the prob_of_record_list
     if prob_of_record_out is not None:
         prob_of_record_out.append(prob_of_record)
@@ -89,21 +90,16 @@ def update_strategy(model: BasicSpeedrunModel, possible_record_density, prob_of_
         # for each possible split before this segment we calculate the expected time that the rest of the run will take
         # and the probability that the rest of this run will result in a record
         segment_distribution = model.segment_distributions[i]
-        new_expected_time = np.convolve(segment_distribution.probabilities, expected_time, "valid")
+        new_expected_time = np.convolve(segment_distribution.probabilities[::-1], expected_time, "valid")
         new_expected_time += model.real_times[i]
-        new_prob_of_record = np.convolve(segment_distribution.probabilities, prob_of_record, "valid")
+        new_prob_of_record = np.convolve(segment_distribution.probabilities[::-1], prob_of_record, "valid")
         # use this to compute the record density of the remaining segments if the run is not reset
         continue_record_density = new_prob_of_record / new_expected_time
-        # do some binary search to find the smallest split index where resetting gives a worse record density
-        if len(continue_record_density) == 1:
-            if continue_record_density[0] < possible_record_density:
-                b = 0
-            else:
-                b = 1
-        elif continue_record_density[0] < possible_record_density:
+        # do some binary search to find the smallest split index b where resetting gives a worse record density
+        if continue_record_density[0] < possible_record_density:
             b = 0
         elif continue_record_density[-1] >= possible_record_density:
-            b = len(possible_record_density)
+            b = len(continue_record_density)
         else:
             a = 0
             b = len(continue_record_density) - 1
@@ -126,7 +122,7 @@ def update_strategy(model: BasicSpeedrunModel, possible_record_density, prob_of_
         # optionally save the prob_of_record_list
         if prob_of_record_out is not None:
             prob_of_record_out.append(prob_of_record)
-    # check if the new strategy actually improved the
+    # check if the new strategy actually improved the record density
     if reset_indices[0] != 1:
         raise ValueError("The record density given could not be achieved!")
     return reset_indices[1:], prob_of_record[0] / expected_time[0]
@@ -140,9 +136,14 @@ def get_strategy(model: BasicSpeedrunModel, *, max_iterations: int = 100,
     """
     # compute a lower bound for the optimal record density using a strategy of completing every run
     record_density = model.prob_of_record() / sum(model.real_times)
+    # stop early if getting a record is impossible
+    if record_density == 0:
+        if print_progress:
+            print("Getting a record is impossible!")
+        return BasicStrategy(model, np.array(model.split_range_lengths[1:])), 0
+
     last_reset_indices = None
     prob_of_record_out = None
-
     for i in range(max_iterations):
         # calculate a strategy of higher record density than 'record_density' and update record_density accordingly
         if return_record_probabilities:

@@ -46,14 +46,15 @@ class SplitDistribution:
             probabilities[i] = exp(-1 / 2 * ((i - k) * split_step / sigma) ** 2)
         return cls(mu - k * split_step, split_step, probabilities / np.sum(probabilities) * (1 - run_kill_prob))
 
-    # creates a SplitDistribution from a bunch of data points
+    # creates a SplitDistribution from a list of data points that are either numbers or the string "run kill"
     @classmethod
-    def from_data(cls, data_points: np.ndarray, split_step, run_kill_threshold=np.PINF, clamp_range=(np.NINF, np.PINF)):
-        data_points = (x for x in data_points if clamp_range[0] <= x <= clamp_range[1])
-        run_kill_points = sum(1 for x in data_points if x >= run_kill_threshold)
-        discrete_points = [round(x/split_step) for x in data_points if x < run_kill_threshold]
+    def from_data(cls, data_points, split_step, run_kill_threshold=np.PINF, clamp_range=(np.NINF, np.PINF)):
+        data_points = [x for x in data_points if isinstance(x, str) or clamp_range[0] <= x <= clamp_range[1]]
+        run_kill_points = sum(1 for x in data_points if isinstance(x, str) or x >= run_kill_threshold)
+        discrete_points = [round(x/split_step) for x in data_points
+                           if (not isinstance(x, str)) and x < run_kill_threshold]
         start_index = min(discrete_points)
-        probabilities = np.zeros(max(discrete_points)-start_index, dtype=float)
+        probabilities = np.zeros(max(discrete_points)-start_index+1, dtype=float)
         probability_unit = 1/(len(discrete_points)+run_kill_points)
         for i in discrete_points:
             probabilities[i-start_index] += probability_unit
@@ -106,10 +107,12 @@ class BasicSpeedrunModel:
 
     # computes the probability of a run reaching the goal split without resets
     def prob_of_record(self):
+        # deal with the edge case that reaching the goal split is impossible
+        if self.goal_index < 0:
+            return 0
         # obtain a distribution for the total run time using the convolve method
         distribution = self.segment_distributions[0].copy()
         for dist in self.segment_distributions[1:]:
             distribution = distribution.convolve(dist)
         # calculate what the probability of a record
         return np.sum(distribution.probabilities[0:self.goal_index+1])
-
