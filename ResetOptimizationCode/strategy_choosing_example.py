@@ -42,6 +42,17 @@ def example_1():
     print(f"expected record time with a risky strategy late in the run: {round(1 / record_density_3)}")
     print("splits to reset at:",  " ".join(str(round(x, 2)) for x in strategy_3.reset_splits))
 
+    # This gives the following output:
+    """"
+    expected record time without any risky strategy: 66245
+    splits to reset at: -0.14 0.09 0.33
+    expected record time with a risky strategy early in the run: 12688
+    splits to reset at: -1.22 -0.73 -0.17
+    expected record time with a risky strategy late in the run: 22707
+    splits to reset at: 0.15 0.81 1.57
+    """
+    # from this we see that a risky strategy early into the run is better than a risky strategy later into the run
+
 
 def example_2():
     # In this example we demonstrate how lowering the goal time can make risky strategies better than safe ones
