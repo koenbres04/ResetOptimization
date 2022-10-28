@@ -78,6 +78,8 @@ In practice it takes around 3 or 4 iterations to converge to an optimal record d
 
 I intend on explaining this algorithm and why it converges to an optimal solution in more mathematical rigour in a LaTeX document.
 In the meanwhile look at the bottom of [this](https://www.reddit.com/r/speedrun/comments/lxq9g7/looking_for_a_mathematicaly_perfect_way_to_reset/) reddit thread for an explanation.
+I have compared early versions of the code to simulations to see if the resulting strategy has the record density the code claims it has and the results matched.
+However I will not deny that there is a real possibility of there still being bugs.
 
 ## Example applications
 
@@ -124,4 +126,5 @@ This would require giving a segment distribution for each strategy.
 Another example would be to allow additional variables (like the number of ammo the runner has at the end of a segment) to be taken into account when deciding wether or not to reset. 
 - You may have noticed that the `get_strategy` function optionally outputs the probability of getting a record at each point in the run and for each possible split.
 It would be kinda cool to have a LiveSplit component that shows this probability given the current segment and split.
+
 If you feel like contributing feel free to email me (the owner of this repository).
