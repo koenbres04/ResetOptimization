@@ -99,8 +99,9 @@ How do we make this exact?
 When is a fast risky strategy better than a slow consistent strategy?
 By making a speedrun model for each strategy we can compare the record densities for different goal splits.
 We see that for higher goal times the consistent strategy gives a lower optimal record density than, but for lower goal times the risky strategy gives the best record density.
-This is illustrated in the `example2` method of `example_code.py`.
+This is illustrated in the `example2` function of `example_code.py`.
 
+The `example1` function of `example_code.py` illustrates the intuitively obvious fact that risky strategies are worse later in a run than in the beginning.
 
 
 ## Getting started
@@ -108,12 +109,11 @@ This is illustrated in the `example2` method of `example_code.py`.
 At the moment this project consists of just python code and cannot really be compiled in any way.
 All the python code is contained in the PyCharm project ResetOptimizationCode.
 The full algorithm is contained in the files `speedrun_models.py` and `reset_strategies.py`.
-Example code is provded in `example_code.py`.
 Only the numpy library is needed to run the code.
 
 The hardest thing about modelling a speedrun is finding the segment distributions.
-For this you can create empirical distributions based on data using the `SplitDistribution.from_data` method.
-It would be ideal if this data could be automatically gathered by a timer like LiveSplit, but unfortunately I (the owner of this repository) could not understand how to write a LiveSplit component.
+The file `lss_reader.py` has the class LSSReader that allows you to easily gather data from .lss-files (LiveSplit splits files).
+See the example file `celeste_example.py`.
 
 
 ## Room for improvement
@@ -122,6 +122,6 @@ The definition of a speedrun model can be improved in many ways while still keep
 For example at the end of a segment we could allow the runner to not only decide whether or not to reset, but also to decide which strategy to employ during the next segment.
 This would require giving a segment distribution for each strategy.
 Another example would be to allow additional variables (like the number of ammo the runner has at the end of a segment) to be taken into account when deciding wether or not to reset. 
-- At the moment generating segment distributions is quite hard.
-Making a livesplit extension for automatically saving splits to a file would be a huge help.
+- You may have noticed that the `get_strategy` function optionally outputs the probability of getting a record at each point in the run and for each possible split.
+It would be kinda cool to have a LiveSplit component that shows this probability given the current segment and split.
 If you feel like contributing feel free to email me (the owner of this repository).

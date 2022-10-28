@@ -43,6 +43,7 @@ def day_and_time_to_int(string: str):
     return day_time+time
 
 
+# extract either the real time or in game time form an XML tree element
 def read_time_element(element, use_igt: bool):
     time_elt = element.find("GameTime" if use_igt else "RealTime")
     if time_elt is not None:
