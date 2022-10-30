@@ -4,7 +4,7 @@ A python file containing classes and methods speedrun models.
 import dataclasses
 import numpy as np
 from typing import List
-from math import ceil, exp
+from math import ceil, exp, floor
 
 
 @dataclasses.dataclass
@@ -103,7 +103,7 @@ class BasicSpeedrunModel:
     # gives the discretised version of self.goal_split
     @property
     def goal_index(self):
-        return ceil((self.goal_split - self.start_splits[-1]) / self.split_step)
+        return floor((self.goal_split - self.start_splits[-1]) / self.split_step)
 
     # computes the probability of a run reaching the goal split without resets
     def prob_of_record(self):
