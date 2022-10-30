@@ -42,7 +42,7 @@ class BasicStrategy:
                 reset_prob = np.sum(distribution.probabilities)
                 distribution.probabilities[:] = 0
             else:
-                reset_prob = np.sum(distribution[reset_index:])
+                reset_prob = np.sum(distribution.probabilities[reset_index:])
                 distribution.probabilities[reset_index:] = 0
             # update the expected time with this
             expected_time += reset_prob * t
