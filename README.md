@@ -117,6 +117,8 @@ The hardest thing about modelling a speedrun is finding the segment distribution
 The file `lss_reader.py` has the class LSSReader that allows you to easily gather data from .lss-files (LiveSplit splits files).
 See the example file `celeste_example.py`.
 
+If you have questions feel free to dm me (the owner of this repository) in discord at CodingDragon04#6339 or send me an email if I don't respond there.
+
 
 ## Room for improvement
 - Models are only models.
@@ -127,4 +129,4 @@ Another example would be to allow additional variables (like the number of ammo 
 - You may have noticed that the `get_strategy` function optionally outputs the probability of getting a record at each point in the run and for each possible split.
 It would be kinda cool to have a LiveSplit component that shows this probability given the current segment and split.
 
-If you feel like contributing feel free to email me (the owner of this repository).
+If you feel like contributing feel free to dm me (the owner of this repository) in discord at CodingDragon04#6339 or send me an email if I don't respond there.
